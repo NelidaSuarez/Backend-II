@@ -5,7 +5,7 @@ const getAll = async () => {
   return products;
 };
 
-const getById = async () => {
+const getById = async (id) => {
   const product = await productModel.findById(id);
   return product;
 };
@@ -23,11 +23,7 @@ const update = async (id, data) => {
 };
 
 const deleteOne = async (id) => {
-  const product = await productModel.findByIdAndUpdate(
-    id,
-    { status: false },
-    { new: true }
-  );
+  const product = await productModel.findByIdAndUpdate(id, { status: false }, { new: true });
   return product;
 };
 export default {

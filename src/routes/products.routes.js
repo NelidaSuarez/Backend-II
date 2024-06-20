@@ -4,6 +4,7 @@ import productDao from "../dao/mongoDB/product.dao.js";
 
 const router = Router();
 
+//Muestra todos los prod
 router.get("/", async (req, res) => {
   try {
     const products = await productDao.getAll();
