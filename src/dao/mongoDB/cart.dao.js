@@ -25,9 +25,17 @@ const deleteOne = async (id) => {
   return cart;
 };
 
-const addProductToCart = async (id, product) => {
-  const cart = await cartModel.findByIdAndUpdate(id, { $push: { products: product } }, { new: true });
-  return cart;
+const addProductToCart = async (cid, pid) => {
+  const productInCart = await cartModel.findOneAndUpdate(
+    { _id: cid, "products.product": pid },
+    { $inc: { "products.$.quantity": 1 } }
+  );
+  if (!productInCart) {
+    await cartModel.updateOne({ _id: cid }, { $push: { products: { product: pid, quantity: 1 } } });
+  }
+
+  const cartUpdate = await cartModel.findById(cid);
+  return cartUpdate;
 };
 
 export default {

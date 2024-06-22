@@ -1,5 +1,6 @@
 import { productModel } from "./models/product.model.js";
 
+//muestra todo
 const getAll = async () => {
   const products = await productModel.find({ status: true });
   return products;
