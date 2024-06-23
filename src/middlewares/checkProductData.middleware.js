@@ -15,7 +15,7 @@ export const checkProductData = async (req = request, res = response, next) => {
 
     const products = await productDao.getAll();
     // Validar que no se repita el campo de code
-    const productExists = products.find((p) => p.code === code);
+    const productExists = products.docs.find((p) => p.code === code); //agrego el .docs. xq antes devolvia un array y ahora develve formato docs
     if (productExists)
       return res.status(400).json({
         status: "Error",

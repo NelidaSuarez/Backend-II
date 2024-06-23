@@ -1,28 +1,29 @@
 import { productModel } from "./models/product.model.js";
 
 //muestra todo
-const getAll = async () => {
-  const products = await productModel.find({ status: true });
+const getAll = async (query, option) => {
+  const products = await productModel.paginate(query, option);
   return products;
 };
-
+//busca por id
 const getById = async (id) => {
   const product = await productModel.findById(id);
   return product;
 };
 
+//crea
 const create = async (data) => {
   const product = await productModel.create(data);
   return product;
 };
-
+//actualiza
 const update = async (id, data) => {
   const productUpdate = await productModel.findByIdAndUpdate(id, data, {
     new: true,
   });
   return productUpdate;
 };
-
+//borra
 const deleteOne = async (id) => {
   const product = await productModel.findByIdAndUpdate(id, { status: false }, { new: true });
   return product;

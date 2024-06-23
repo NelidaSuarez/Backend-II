@@ -7,7 +7,27 @@ const router = Router();
 //Muestra todos los prod
 router.get("/", async (req, res) => {
   try {
-    const products = await productDao.getAll();
+    const { limit, page, sort, category, status } = req.query; //sort es el orden
+    const options = {
+      limit: limit || 10,
+      page: page || 1,
+      sort: {
+        price: sort === "asc" ? 1 : -1, //orden ascendente si no orden ascendente
+      },
+      learn: true,
+    };
+    // si tiene categoria y lo solicitan
+    if (category) {
+      const products = await productDao.getAll({ category }, options);
+      res.status(200).json({ status: "success", products });
+    }
+    //si solicitan por status(disponibilidad)
+    if (status) {
+      const products = await productDao.getAll({ status }, options);
+      res.status(200).json({ status: "success", products });
+    }
+
+    const products = await productDao.getAll({}, options); //si no filtra vienen todos los productos
     res.status(200).json({ status: "success", products });
   } catch (error) {
     console.log(error);
