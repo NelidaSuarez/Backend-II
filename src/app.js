@@ -2,11 +2,13 @@ import express from "express";
 import routes from "./routes/index.js";
 import __dirname from "./dirname.js";
 import handlebars from "express-handlebars";
-import { Server } from "socket.io";
 import viewsRoutes from "./routes/views.routes.js";
-import { connectMongoDB } from "./config/mongoDB.config.js";
+import env from "./config/env.config.js";
 
-const PORT = 8080;
+import { connectMongoDB } from "./config/mongoDB.config.js";
+import { Server } from "socket.io";
+
+//const PORT = 8080;
 const app = express();
 
 connectMongoDB();
@@ -21,13 +23,13 @@ app.use(express.static("public"));
 app.use("/api", routes); // ruta de la appi
 app.use("/", viewsRoutes); //ruta de las vistas
 
-const httpServer = app.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto http://localhost:${PORT}`); //ruta de la vista
+const httpServer = app.listen(env.PORT, () => {
+  console.log(`Server listening on port http://localhost:${env.PORT}`); //ruta de la vista
 });
 
 //configuracion de socket
 export const io = new Server(httpServer);
 
 io.on("connection", async (Socket) => {
-  console.log("Nuevo usuario conectado");
+  console.log("New user connected");
 });

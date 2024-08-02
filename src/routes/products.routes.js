@@ -49,7 +49,7 @@ router.get("/:pid", async (req, res) => {
   }
 });
 
-// Cambia el estado del prod.
+// Cambia el estado del prod. no lo elimina
 router.delete("/:pid", async (req, res) => {
   try {
     const { pid } = req.params;
