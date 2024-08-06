@@ -4,9 +4,14 @@ import __dirname from "./dirname.js";
 import handlebars from "express-handlebars";
 import viewsRoutes from "./routes/views.routes.js";
 import env from "./config/env.config.js";
+import cookieParser from "cookie-parser";
+import session from "express-session";
+import passport from "passport";
 
+import { initializePassport } from "./config/passport.config.js";
 import { connectMongoDB } from "./config/mongoDB.config.js";
 import { Server } from "socket.io";
+
 
 //const PORT = 8080;
 const app = express();
@@ -19,6 +24,20 @@ app.engine("handlebars", handlebars.engine()); //inicia plantilla
 app.set("views", __dirname + "/views"); //rutas que se encuentran las vistas
 app.set("view engine", "handlebars"); //motor que utilizaremos , las vistas
 app.use(express.static("public"));
+
+
+app.use(cookieParser("secretCoder"));
+app.use(session({
+  secret: "envs.SECRET_CODE", //palabra secreta
+  resave:true, //mantiene activa, si estuviera en false la  cierra al cierto tiempo
+  saveUninitialized: true,//guarda session
+}));
+
+//passport
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.use("/api", routes); // ruta de la appi
 app.use("/", viewsRoutes); //ruta de las vistas
