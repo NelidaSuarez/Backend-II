@@ -26,7 +26,7 @@ app.set("view engine", "handlebars"); //motor que utilizaremos , las vistas
 app.use(express.static("public"));
 
 
-app.use(cookieParser("secretCoder"));
+app.use(cookieParser());
 app.use(session({
   secret: "envs.SECRET_CODE", //palabra secreta
   resave:true, //mantiene activa, si estuviera en false la  cierra al cierto tiempo

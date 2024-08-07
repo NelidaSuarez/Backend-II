@@ -3,10 +3,14 @@ import local from "passport-local";
 import google from "passport-google-oauth20"
 import userDao from "../dao/mongoDB/user.dao.js";
 import envs from "./env.config.js";
+import jwt from "passport-jwt"
 import { createHash, isValidPassword } from "../utils/hashPassword.js";
+import { cookieExtractor } from "../utils/cookiesExtractor.js";
 
 const LocalStrategy = local.Strategy;
 const GoogleStrategy = google.Strategy;
+const JWTStrategy = jwt.Strategy;
+const ExtractJWT = jwt.ExtractJwt;
 
 export const initializePassport = () => {
   passport.use(
@@ -51,7 +55,28 @@ export const initializePassport = () => {
         done(error)
       }
     })
-  ) 
+  ) ;
+
+  //estrategia de JWT
+  passport.use(
+    "jwt",
+    new JWTStrategy(
+      {jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor ]) , secretOrKey: envs.JWT_SECRET_CODE},
+      async(jwt_payload, done)=>{
+          try {
+            console.log(jwt_payload);
+            return done(null, jwt_payload);
+
+          } catch (error) {
+            return done(error);
+          }
+        
+      }
+    )
+  )
+
+
+
 
 //serializacion y desearilacion de usuarios; convierte un obj, de usuario en identificador unico (almacena y recupera datos) en cada sesion
 

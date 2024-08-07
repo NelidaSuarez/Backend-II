@@ -1,11 +1,16 @@
 import { Router } from "express";
 import { checkProductData } from "../middlewares/checkProductData.middleware.js";
 import productDao from "../dao/mongoDB/product.dao.js";
+import { passportCall } from "../middlewares/passport.middleware.js";
+import { authorization } from "../middlewares/authorization.middleware.js";
+
+
+
 
 const router = Router();
 
 //Muestra todos los prod
-router.get("/", async (req, res) => {
+router.get("/", passportCall("jwt"), authorization("admin"), async (req, res) => {
   try {
     const { limit, page, sort, category, status } = req.query; //sort es el orden
     const options = {
