@@ -3,6 +3,7 @@ import { createHash, isValidPassword } from "../utils/hashPassword.js";
 
 import userDao from "../dao/mongoDB/user.dao.js";
 import passport from "passport";
+import { createToken } from "../utils/jwt.js";
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.post("/login", passport.authenticate("login"),async (req, res) => {
       
     } catch (error) {
       console.log(error);
-      res.status(500).json({ status: "error", msg: "Internal server error" });
+      res.status(500).json({ status: "error", msg: "Internal server error" })
     }
   });
 
@@ -33,13 +34,35 @@ router.post("/login", passport.authenticate("login"),async (req, res) => {
     }),
   async (req, res) => {
     try {
-      return res.status(200).json({status:"ok", payload: req.user})
+      return res.status(200).json({status:"ok", payload: req.user});
       
     } catch (error) {
       console.log(error);
       res.status(500).json({ status: "error", msg: "Internal server error" });
     }
   });
+   
+  router.get("/current",async (req,res)=>{
+    const user = await userDao.getByEmail(req.session.user.email);
+  });
 
+
+
+  //token
+  router.post("/auth",async (req, res) => {
+    try {
+      const { email, password} = req.body;
+      const user = await userDao.getByEmail(email);
+      if(!user || !isValidPassword(user.password, password)) return res.status(401).json({status:"error", msg: "invalid user or email"});
+      
+      const token = createToken(user);
+      
+      res.cookie("token", token, {httpOnly:true  });
+      return res.status(200).json({status:"ok", token });      
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ status: "error", msg: "Internal server error" })
+    }
+  });
   
 export default router

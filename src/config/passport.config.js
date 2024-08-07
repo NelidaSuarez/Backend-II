@@ -98,9 +98,21 @@ passport.use(
       async (accessToken, refreshToken, profile, cb) => {
         try {
           const { name, emails } = profile;
-          console.log(profile);
+          const user =await userDao.getByEmail(emails[0].value);
 
-          
+          if(user){
+            return cb(null, user);
+          }else{
+            const newUser ={
+              first_name: name.givenName,
+              last_name: name.familyName,
+              email: emails[0].value,
+
+            }
+            const userCreate = await userDao.create(newUser);
+            return cb(null, userCreate);
+
+          }          
         } catch (error) {
           return cb(error);
       }
