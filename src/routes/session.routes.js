@@ -21,6 +21,9 @@ router.post("/register", passportCall("register"),async(req, res)=> {
 //login
 router.post("/login", passportCall("login"),async (req, res) => {
     try {
+      const token = createToken(req.user);
+
+      res.cookie("token", token, { httpOnly: true});
       return res.status(200).json({status:"ok", payload: req.user})
       
     } catch (error) {
@@ -43,14 +46,12 @@ router.post("/login", passportCall("login"),async (req, res) => {
     } 
   });
    
-  router.get("/current", passportCall("jwt"),async (req,res)=>{  
-
-    res.status(200).json({ status: "ok",user : req.user});
+  router.get("/current", passportCall("jwt"), async (req, res) => {
+    res.status(200).json({ status: "ok", user: req.user });
   });
 
 
-
-  //token
+//token
   router.post("/auth", async (req, res) => {
     try {
       const { email, password } = req.body;

@@ -3,13 +3,17 @@ import local from "passport-local";
 import google from "passport-google-oauth20"
 import userDao from "../dao/mongoDB/user.dao.js";
 import envs from "./env.config.js";
-import jwt from "passport-jwt"
+import jwt from "passport-jwt";
+import cartDao from "../dao/mongoDB/cart.dao.js";
+import passportCustom from "passport-custom";
 import { createHash, isValidPassword } from "../utils/hashPassword.js";
 import { cookieExtractor } from "../utils/cookiesExtractor.js";
+import { verifyToken } from "../utils/jwt.js";
 
 const LocalStrategy = local.Strategy;
 const GoogleStrategy = google.Strategy;
 const JWTStrategy = jwt.Strategy;
+const CustomStrategy = passportCustom.Strategy;
 const ExtractJWT = jwt.ExtractJwt;
 
 export const initializePassport = () => {
@@ -20,7 +24,10 @@ export const initializePassport = () => {
       try {
         const { first_name, last_name, age } = req.body;
         const user = await userDao.getByEmail(username);
-        if (user) return done(null, false, { message: "User already exists" });
+        if (user) return done(null, false, { message: "User already exists" });//si existe se corta aca la funcion
+
+        //si no existe crea carrito
+        const cart = await cartDao.create();
 
         const newUser = {
           first_name,
@@ -28,6 +35,7 @@ export const initializePassport = () => {
           password: createHash(password),
           email: username,
           age,
+          cart: cart._id,
         };
 
         const userCreate = await userDao.create(newUser);
@@ -39,7 +47,7 @@ export const initializePassport = () => {
     })
   );
 
-
+//login de usuario
   passport.use(
     "login",
     new LocalStrategy({usernameField:"email"}, async (username, password, done) => {
@@ -47,70 +55,16 @@ export const initializePassport = () => {
       try {
 
         const user = await userDao.getByEmail(username);
-        if (!user || !isValidPassword(user.password, password)) return done(null, false);
-
-        return done(null, user);
-        
+        if (!user || !isValidPassword(user.password, password)) return done(null, false, {message : "User or email invalid"});
+        return done(null, user);        
       } catch (error) {
-        done(error)
+        done(error);
       }
     })
   ) ;
 
-  //estrategia de JWT
-  passport.use(
-    "jwt",
-    new JWTStrategy(
-      {jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor ]) , secretOrKey: envs.JWT_SECRET_CODE},
-      async(jwt_payload, done)=>{
-          try {
-            console.log(jwt_payload);
-            return done(null, jwt_payload);
 
-          } catch (error) {
-            return done(error);
-          }
-        
-      }
-    )
-  )
-
-
-
-
-//serializacion y desearilacion de usuarios; convierte un obj, de usuario en identificador unico (almacena y recupera datos) en cada sesion
-
-//creacion de usuario
-  passport.serializeUser((user, done) => {
-    done(null, user._id); 
-  });
-
-  passport.deserializeUser(async (id, done) => {
-    try {
-      const user = await userDao.getById(id);
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
-  }); 
-
-//login de usuario
-
-passport.use(
-    "login",
-    new LocalStrategy({ usernameField: "email"}, async (username,password,done)=>{
-        try {
-            const user = await userDao.getByEmail(username);
-            if (!user || !isValidPassword(user.password, password) ) done(null, false);
-
-            return done(null, user);
-
-        } catch (error) {
-            done(error)
-        }
-    })
-)
-
+  
 //estrategia de Google
 passport.use(
   "google",
@@ -146,3 +100,63 @@ passport.use(
 )
 
 };
+
+
+  //estrategia de JWT
+  passport.use(
+    "jwt",
+    new JWTStrategy(
+      {jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor ]) , secretOrKey: envs.JWT_SECRET_CODE},
+      async(jwt_payload, done)=>{
+          try {
+            console.log(jwt_payload);
+            return done(null, jwt_payload);
+
+          } catch (error) {
+            return done(error);
+          }
+        
+      }
+    )
+  )
+  //CUSTOMSTRATEGY
+
+  passport.use(
+    "current",
+    new CustomStrategy(
+      async (req, done) => {
+        try {
+
+          const token = cookieExtractor(req);
+          if(!token) return done(null, false);
+          const tokenVerify = verifyToken(token);
+          if(!tokenVerify) return done(null, false);
+          const user = await userDao.getByEmail(tokenVerify.email)
+          done(null, user);
+          
+        } catch (error) {
+          done(error)
+        }
+      }
+    )
+  )
+
+
+
+
+//serializacion y desearilacion de usuarios; convierte un obj, de usuario en identificador unico (almacena y recupera datos) en cada sesion
+
+//creacion de usuario
+  passport.serializeUser((user, done) => {
+    done(null, user._id); 
+  });
+
+  passport.deserializeUser(async (id, done) => {
+    try {
+      const user = await userDao.getById(id);
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
+  }); 
+
