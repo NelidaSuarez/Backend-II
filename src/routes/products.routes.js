@@ -10,7 +10,7 @@ import { authorization } from "../middlewares/authorization.middleware.js";
 const router = Router();
 
 //Muestra todos los prod
-router.get("/", passportCall("jwt"), authorization("user"), async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { limit, page, sort, category, status } = req.query; //sort es el orden
     const options = {

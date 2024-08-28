@@ -1,8 +1,8 @@
 import { productModel } from "./models/product.model.js";
 
 //muestra todo
-const getAll = async (query, option) => {
-  const products = await productModel.paginate(query, option);
+const getAll = async (query, options) => {
+  const products = await productModel.paginate(query, options);
   return products;
 };
 //busca por id

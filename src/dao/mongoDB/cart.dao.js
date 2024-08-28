@@ -32,16 +32,17 @@ const deleteOne = async (id) => {
 
 //agrega el prod del cart
 const addProductToCart = async (cid, pid) => {
-  const productInCart = await cartModel.findOneAndUpdate(
-    { _id: cid, "products.product": pid },
-    { $inc: { "products.$.quantity": 1 } }
-  );
-  if (!productInCart) {
-    await cartModel.updateOne({ _id: cid }, { $push: { products: { product: pid, quantity: 1 } } });
+  const cart = await cartModel.findById(cid);
+
+  const productInCart = cart.products.find((element) => element.product == pid);
+  if (productInCart) {
+    productInCart.quantity++;
+  } else {
+    cart.products.push({ product: pid, quantity: 1 });
   }
 
-  const cartUpdate = await cartModel.findById(cid);
-  return cartUpdate;
+  await cart.save(); // Guardamos los cambios realizado en la base de datos de mongo
+  return cart;
 };
 
 //elimina el prod (todos con ese id ) del cart

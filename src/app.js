@@ -7,6 +7,7 @@ import env from "./config/env.config.js";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
+import cors from "cors";
 
 import { initializePassport } from "./config/passport.config.js";
 import { connectMongoDB } from "./config/mongoDB.config.js";
@@ -31,7 +32,9 @@ app.use(session({
   secret: "envs.SECRET_CODE", //palabra secreta
   resave:true, //mantiene activa, si estuviera en false la  cierra al cierto tiempo
   saveUninitialized: true,//guarda session
-}));
+})
+);
+app.use(cors());
 
 //passport
 initializePassport();

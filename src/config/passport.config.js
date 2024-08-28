@@ -101,7 +101,6 @@ passport.use(
 
 };
 
-
   //estrategia de JWT
   passport.use(
     "jwt",
