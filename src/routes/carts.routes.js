@@ -17,13 +17,13 @@ router.get("/:cid", cartsControllers.getCartById);
 router.post("/:cid/product/:pid", passportCall("jwt"),authorization("user"),isUserCart, checkProducAndCart, cartsControllers.addProductToCart);
 
 //elimina el pro del carrito
-router.delete("/:cid/product/:pid",authorization("user"), checkProducAndCart, cartsControllers.deleteProductToCart);
+router.delete("/:cid/product/:pid",passportCall("jwt"),authorization("user"), checkProducAndCart, cartsControllers.deleteProductToCart);
 
 //actualiza quantity prod en el cart
-router.put("/:cid/product/:pid",authorization("user"), checkProducAndCart, cartsControllers.updateQuantityProductInCart);
+router.put("/:cid/product/:pid",passportCall("jwt"),authorization("user"), checkProducAndCart, cartsControllers.updateQuantityProductInCart);
 
 //Elimina el carrito
-router.delete("/:cid",authorization("user"), cartsControllers.clearProductsToCart);
+router.delete("/:cid",passportCall("jwt"),authorization("user"), cartsControllers.clearProductsToCart);
 
 //ticket
 router.get("/:cid/purchase",passportCall("jwt"), authorization("user"), cartsControllers.purchaseCart);

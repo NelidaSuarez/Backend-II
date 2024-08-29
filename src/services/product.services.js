@@ -11,8 +11,9 @@ const getAllProducts = async (query, options) => {
 //busca el prod por id
 const getProductById = async (pid) => {
   const product = await productRepository.getById(pid);
-  const productResponse = respProductDto(product); 
+ const productResponse = respProductDto(product); 
   return productResponse;
+ // return product;
 };
 
 //actuasliza el prod

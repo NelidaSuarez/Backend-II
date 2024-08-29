@@ -1,4 +1,5 @@
 import cartRepository from "../persistence/mongoDB/cart.repository.js";
+import productRepository from "../persistence/mongoDB/product.repository.js";
 
 
 //crea carrito 
@@ -27,7 +28,7 @@ const createCart = async () => {
 
 // elimina todos los prod del carrito
 const clearProductsToCart = async (cid) => {
-    await cartRepository.deleteOne(cid);
+    return await cartRepository.clearProductsToCart(cid);
 };
 
 //ticket services (llama a la capa de persistencia de cart para hacer la logica del negocio)
@@ -47,6 +48,8 @@ const purchaseCart = async (cid) => {
       }
 //Actualiza el carrito solo con los productos que no se pudieron comprar por falta de stock
       await cartRepository.update(cid, { products: productsWithOutStock });
+
+      
   }
 
   return total;

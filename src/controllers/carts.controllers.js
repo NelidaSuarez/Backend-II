@@ -1,5 +1,9 @@
 import cartServices from "../services/cart.services.js";
 import { request, response } from "express"; 
+import ticketServices from "../services/ticket.services.js";
+
+
+
 //crea carrito 
 const createCart =  async (req= request, res= response) => {
     try {
@@ -68,7 +72,7 @@ const createCart =  async (req= request, res= response) => {
 const clearProductsToCart = async (req= request, res= response) => {
     try {
       const { cid } = req.params;
-      const cart = await cartServices.deleteOne(cid);
+      const cart = await cartServices.clearProductsToCart(cid);
       if (!cart) return res.status(404).json({ status: "Error", msg: "Carrito no encontrado" });
   
       res.status(200).json({ status: "success", cart });
@@ -81,13 +85,15 @@ const clearProductsToCart = async (req= request, res= response) => {
   //crea ticket
   const purchaseCart = async (req = request, res = response) => {
     try {
+      
         const { cid } = req.params;
         const cart = await cartServices.getCartById(cid);
         if (!cart) return res.status(404).json({ status: "Error", msg: "Carrito no encontrado" });
-
+        // console.log("ACAAAAAAAAAA") no es
         const total = await cartServices.purchaseCart(cid);
+        // console.log("ACAAAAAAAAAAOOOOOOOOOO", req.user) tampoco
         const ticket = await ticketServices.createTicket(req.user.email, total);
-
+        // console.log("ACAAAAAAAAAAGGGGGGGGGG") aparecio al final!
         res.status(200).json({ status: "success", ticket });
     } catch (error) {
         console.log(error);
