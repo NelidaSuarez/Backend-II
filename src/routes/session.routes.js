@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { createHash, isValidPassword } from "../utils/hashPassword.js";
-
-import userDao from "../dao/mongoDB/user.dao.js";
+import userRepository from "../persistence/mongoDB/user.repository.js";
 import passport from "passport";
 import { createToken } from "../utils/jwt.js";
 import { passportCall } from "../middlewares/passport.middleware.js";
+
+
+
 
 const router = Router();
 
@@ -55,7 +57,7 @@ router.post("/login", passportCall("login"),async (req, res) => {
   router.post("/auth", async (req, res) => {
     try {
       const { email, password } = req.body;
-      const user = await userDao.getByEmail(email);
+      const user = await userRepository.getByEmail(email);
       if (!user || !isValidPassword(user.password, password)) return res.status(401).json({ status: "error", msg: "User or email invalid" });
   
       const token = createToken(user);

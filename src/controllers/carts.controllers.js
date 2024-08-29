@@ -1,7 +1,7 @@
 import cartServices from "../services/cart.services.js";
-
+import { request, response } from "express"; 
 //crea carrito 
-const createCart =  async (req, res) => {
+const createCart =  async (req= request, res= response) => {
     try {
       const cart = await cartServices.createCart();
       res.status(201).json({ status: "success", cart });
@@ -11,10 +11,10 @@ const createCart =  async (req, res) => {
     }
   };
 //busca carrito por id
-  const getCartById = async (req, res) => {
+  const getCartById = async (req= request, res= response) => {
     try {
       const { cid } = req.params;
-      const cart = await cartDao.getById(cid);
+      const cart = await cartServices.getCartById(cid);
       if (!cart) return res.status(404).json({ status: "Error", msg: "Carrito no encontrado" });
   
       res.status(200).json({ status: "success", cart });
@@ -25,7 +25,7 @@ const createCart =  async (req, res) => {
   };
 
   //Agrega el prod al carrito 
-  const addProductToCart = async (req, res) => {
+  const addProductToCart = async (req= request, res= response) => {
     try {
       const { cid, pid } = req.params;  
       const cartUpdate = await cartServices.addProductToCart(cid, pid);
@@ -38,7 +38,7 @@ const createCart =  async (req, res) => {
   };
 
   //elimina el pro del carrito
- const deleteProductToCart =  async (req, res) => {
+ const deleteProductToCart =  async (req= request, res= response) => {
     try {
       const { cid, pid } = req.params; 
       const cartUpdate = await cartServices.deleteProductToCart(cid, pid);
@@ -51,7 +51,7 @@ const createCart =  async (req, res) => {
   };
 
 //actualiza quantity prod en el cart
-  const updateQuantityProductInCart = async (req, res) => {
+  const updateQuantityProductInCart = async (req= request, res= response) => {
     try {
       const { cid, pid } = req.params;
       const { quantity } = req.body;  
@@ -65,7 +65,7 @@ const createCart =  async (req, res) => {
   };
 
 // elimina todos los prod del carrito
-const clearProductsToCart = async (req, res) => {
+const clearProductsToCart = async (req= request, res= response) => {
     try {
       const { cid } = req.params;
       const cart = await cartServices.deleteOne(cid);
@@ -78,6 +78,22 @@ const clearProductsToCart = async (req, res) => {
     }
   };
 
+  //crea ticket
+  const purchaseCart = async (req = request, res = response) => {
+    try {
+        const { cid } = req.params;
+        const cart = await cartServices.getCartById(cid);
+        if (!cart) return res.status(404).json({ status: "Error", msg: "Carrito no encontrado" });
+
+        const total = await cartServices.purchaseCart(cid);
+        const ticket = await ticketServices.createTicket(req.user.email, total);
+
+        res.status(200).json({ status: "success", ticket });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ status: "Erro", msg: "Error interno del servidor" });
+    }
+};
 
   export default {
     createCart,
@@ -86,4 +102,5 @@ const clearProductsToCart = async (req, res) => {
     deleteProductToCart,
     updateQuantityProductInCart,
     clearProductsToCart,
+    purchaseCart,
   }
