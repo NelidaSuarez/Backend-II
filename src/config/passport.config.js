@@ -23,7 +23,7 @@ export const initializePassport = () => {
     new LocalStrategy({ passReqToCallback: true, usernameField: "email" }, async (req, username, password, done) => {
      
       try {
-        const { first_name, last_name, age } = req.body;
+        const { first_name, last_name, age, role } = req.body;
         const user = await userRepository.getByEmail(username);
         if (user) return done(null, false, { message: "User already exists" });//si existe se corta aca la funcion
 
@@ -37,6 +37,7 @@ export const initializePassport = () => {
           email: username,
           age,
           cart: cart._id,
+          role,
         };
 
         const userCreate = await userRepository.create(newUser);
